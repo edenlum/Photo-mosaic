@@ -45,18 +45,16 @@ def create_image_from_small_images(image_name, images_to_tile_names, res_name, s
   # sort images by average color
   low_res_gray_sorted = sorted(low_res_gray, key=lambda x: np.average(x))
   values = [np.average(img) for img in low_res_gray_sorted]
-  # write back results
-  write_images(new_names, low_res_gray)
   # load main image and resize + quantize color (gray scale)
   image = cv2.imread(image_name)
   image = cv2.resize(image, (image.shape[1]*small_res[0]//factor, image.shape[0]*small_res[1]//factor))
   h,w,c = image.shape
   resized_image = cv2.resize(image, (w//small_res[1], h//small_res[0]))
   quantized = quantize(resized_image, len(low_res_gray), values)
-  # write to file
-  cv2.imwrite('quantized.png', quantized)
+  # create a map between the values of the quantized image and small images
   map = {k:low_res_gray_sorted[i] for i,k in enumerate(np.sort(np.unique(quantized)))}
   h,w = quantized.shape
   res = np.array([map[k] for k in quantized.flatten()]).reshape(h,w,small_res[0],small_res[1]).swapaxes(1,2)
   res = res.reshape((h*small_res[0], w*small_res[1]))
-  cv2.imwrite(res_name, res)
+  if not cv2.imwrite(res_name, res):
+    print("Writing result failed. Does the path exist?")
