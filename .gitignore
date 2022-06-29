@@ -1,9 +1,11 @@
 # project specific things
 outputs/
 *.png
+!resources/*.png
 *.jpg
+!resources/*.jpg
 *.jpeg
-/resources
+!resources/*.jpeg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
