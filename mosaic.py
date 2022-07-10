@@ -47,7 +47,7 @@ def to_gray(img):
     return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 
-def create_image_from_small_images(image_name, images_to_tile_names, res_name, small_res = (20, 20), factor = 4, gray = True):
+def create_image_from_small_images(image_name, images_to_tile_names, res_name, small_res = (20, 20), upscale = 1, gray = True):
   to_gray = lambda x: [cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) for img in x]
   new_names = [f"{i}_low_res" for i in images_to_tile_names]
   a,b = small_res
@@ -58,11 +58,9 @@ def create_image_from_small_images(image_name, images_to_tile_names, res_name, s
   
   # load main image and resize + quantize color (gray scale)
   image = cv2.imread(image_name)
-  h,w,c = image.shape
-  resized_image = cv2.resize(image, (w//factor, h//factor))
 
   # creating object that will choose how to tile the image
-  tiler = ChooseTile(resized_image, low_res_gray, "average", gray=True)
+  tiler = ChooseTile(image, low_res_gray, "use all", gray=True, upscale=upscale)
   # returning an "image" of indices 
   quantized_indices = tiler.quantize2index()
   h,w = quantized_indices.shape
