@@ -53,8 +53,8 @@ def create_image_from_small_images(image_name, images_to_tile_names, res_name, s
   a,b = small_res
   
   # load, change res, and convert to grayscale
-  dice_images = load_images(images_to_tile_names)
-  low_res_gray = to_gray(change_images_res(dice_images, small_res))
+  small_images = load_images(images_to_tile_names)
+  low_res_gray = to_gray(change_images_res(small_images, small_res))
   
   # load main image and resize + quantize color (gray scale)
   image = cv2.imread(image_name)
