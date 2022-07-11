@@ -47,25 +47,18 @@ def to_gray(img):
     return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 
-def create_image_from_small_images(image_name, images_to_tile_names, res_name, small_res = (20, 20), upscale = 1, gray = True):
-  to_gray = lambda x: [cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) for img in x]
-  new_names = [f"{i}_low_res" for i in images_to_tile_names]
-  a,b = small_res
-  
-  # load, change res, and convert to grayscale
+def create_image_from_small_images(image_name, images_to_tile_names, res_name, small_res = (20, 20), upscale = 1, gray = True, method = "average"):
+  # load, change res
   small_images = load_images(images_to_tile_names)
-  low_res_gray = to_gray(change_images_res(small_images, small_res))
+  low_res_small_images = change_images_res(small_images, small_res)
   
-  # load main image and resize + quantize color (gray scale)
+  # load main image
   image = cv2.imread(image_name)
 
   # creating object that will choose how to tile the image
-  tiler = ChooseTile(image, low_res_gray, "use all", gray=True, upscale=upscale)
-  # returning an "image" of indices 
-  quantized_indices = tiler.quantize2index()
-  h,w = quantized_indices.shape
-  # converting image of indices to final result
-  res = np.array(low_res_gray)[quantized_indices.flatten()].reshape(h,w,a,b).swapaxes(1,2).reshape(h*a, w*b)
+  tiler = ChooseTile(image, low_res_small_images, method, gray=gray, upscale=upscale)
+
+  res = tiler.tile()
 
   if not cv2.imwrite(res_name, res):
     print("Writing result failed. Does the path exist?")
